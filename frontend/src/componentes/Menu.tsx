@@ -2,20 +2,21 @@ import { useEffect, useState } from "react";
 import MenuOpciones from "./MenuOpciones";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
 import ItemArticulo from "./ItemArticulo";
-import { getArticuloManufacturadoJSONFetch } from "../servicios/FuncionesApi";
+import { getArticulos } from "../servicios/FuncionesApi";
 
 function Menu() {
   const [articulo, setArticulo] = useState<ArticuloManufacturado[]>([]);
 
   const getArticuloManufacturado = async () => {
-    const datos: ArticuloManufacturado[] =
-      await getArticuloManufacturadoJSONFetch();
-    setArticulo(datos);
+    const response = await getArticulos();
+    console.log("Respuesta de getArticulos:", response);
+    setArticulo(response.data); // ✅ .data es el array que querés mapear
   };
 
   useEffect(() => {
     getArticuloManufacturado();
   }, []);
+  console.log("Contenido de articulo:", articulo);
   return (
     <>
       <MenuOpciones></MenuOpciones>

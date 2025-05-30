@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-// import Plato from '../entidades/Plato';
-import { getArticuloManufacturadoXIdFecth } from "../servicios/FuncionesApi";
-// import Ingrediente from '../entidades/Ingrediente';
 import MenuOpciones from "./MenuOpciones";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
+import { getArticuloManufacturadoXIdFecth } from "../servicios/FuncionesApi";
 
 function DetalleArticulo() {
   const { idarticulo } = useParams();
