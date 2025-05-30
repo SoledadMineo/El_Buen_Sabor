@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MenuOpciones from "./MenuOpciones";
 import { createArticulo } from "../servicios/FuncionesApi";
+import { useParams } from 'react-router-dom';
 
-const FormularioArticulo = () => {
+const Formulario = () => {
 
   const [categorias, setCategorias] = useState([]);
   const [insumos, setInsumos] = useState([]);
   const [imagen, setImagen] = useState(null);
 
   const [articulo, setArticulo] = useState({
+    id:0,
     denominacion: '',
     descripcion: '',
     precioVenta: '',
@@ -77,7 +79,8 @@ const FormularioArticulo = () => {
     }));
   };
 
-  // console.log("check", detalles, insumos, articulo)
+  const { id } = useParams();  
+  console.log("check", detalles, insumos, articulo)
 
   useEffect(() => {
     fetch('http://localhost:3000/api/categorias-manufacturados')
@@ -92,6 +95,28 @@ const FormularioArticulo = () => {
   }, []);
 
   useEffect(() => {
+  if (id) {
+    fetch(`http://localhost:3000/api/articulos-manufacturados/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setArticulo({
+          id: data.id,
+          denominacion: data.denominacion,
+          descripcion: data.descripcion,
+          precioVenta: data.precioVenta,
+          precioCosto: data.precioCosto,
+          tiempoEstimado: data.tiempoEstimado,
+          categoriaId: data.categoriaId,
+          detalleArtManufacturado: data.detalleArtManufacturado
+        });
+        setDetalles(data.detalleArtManufacturado);
+      })
+      .catch(err => console.error('Error al cargar artículo:', err));
+  }
+}, [id]);
+
+
+  useEffect(() => {
     console.log("cambio detalles")
     calcularPrecioCosto()
   }, [detalles])
@@ -104,19 +129,33 @@ const FormularioArticulo = () => {
     formData.append('precioVenta', articulo.precioVenta);
     formData.append('precioCosto', articulo.precioCosto);
     formData.append('tiempoEstimado', articulo.tiempoEstimado);
-    formData.append('categoria_id', articulo.categoriaId);
-    formData.append(
-      'detalles',
-      JSON.stringify(detalles)
-    );
+    formData.append('categoriaId', articulo.categoriaId);
+    formData.append('detalles', JSON.stringify(detalles));
 
-    formData.append('imagenes', imagen);
+    if(imagen)formData.append('imagenes', imagen);
 
-    createArticulo(formData);
-  }
-
-  const nombreInsumo = id =>
-    insumos.find(i => i.id === Number(id))?.denominacion || '─';
+    if (articulo.id && articulo.id !== 0) {
+      // Editar
+      fetch(`http://localhost:3000/api/articulos-manufacturados/${articulo.id}`, {
+        method: 'PUT',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => alert('Artículo editado correctamente'))
+      .catch(err => console.error('Error al editar artículo:', err));
+    } else {
+    // Crear
+      fetch(`http://localhost:3000/api/articulos-manufacturados`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => alert('Artículo creado correctamente'))
+      .catch(err => console.error('Error al crear artículo:', err));
+    }
+  };
+ 
+  const nombreInsumo = id => insumos.find(i => i.id === Number(id))?.denominacion || '─';
 
   return (
     <>
@@ -245,13 +284,13 @@ const FormularioArticulo = () => {
             </div>
           </div>
         )}
-
         <br />
-
-        <button type="button" className="btn btn-primary" onClick={guardarArticuloManufacturado}>Guardar</button>
-      </form>
+        <button type="button" className="btn btn-primary" onClick={guardarArticuloManufacturado}>
+          Guardar Artículo
+        </button>
+        </form>
     </>
   );
 };
 
-export default FormularioArticulo;
+export default Formulario;

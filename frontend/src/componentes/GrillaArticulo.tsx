@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
 import MenuOpciones from "./MenuOpciones";
-import { getArticulos } from "../servicios/FuncionesApi";
+import { deleteArticulo, getArticulos } from "../servicios/FuncionesApi";
+import { useNavigate } from "react-router-dom";
 
 function GrillaArticulo() {
+  const navigate = useNavigate();
   const [articulos, setArticulos] = useState<ArticuloManufacturado[]>([]);
-
   const getArticuloManufacturado = async () => {
     const datos: ArticuloManufacturado[] = await getArticulos();
     console.log("datos", datos)
@@ -16,19 +17,23 @@ function GrillaArticulo() {
     getArticuloManufacturado();
   }, []);
 
-  const deleteArticulo = async (idArticulo: number) => {
+  const deleteArt = async (idArticulo: number) => {
+  try {
     await deleteArticulo(idArticulo);
-    window.location.reload();
-  };
+    setArticulos(articulos.filter((a) => a.id !== idArticulo)); // así no recargas la página
+  } catch (error) {
+    console.error("Error al eliminar el artículo", error);
+  }
+};
 
   return (
     <>
       <MenuOpciones></MenuOpciones>
       <div className="container text-center">
         <br />
-        <a className="btn btn-primary" href={`/formulario/0`}>
+        <button className="btn btn-primary" onClick={() => navigate(`/formulario/0`)}>
           Nuevo
-        </a>
+        </button>
         <div className="row">
           <div className="col">
             <b>ID</b>
@@ -67,28 +72,28 @@ function GrillaArticulo() {
             <div className="col">{articulo.precioCosto}</div>
             <div className="col">{articulo.tiempoEstimado}</div>
             <div className="col">
-              <a
+              <button
                 className="btn btn-primary"
                 style={{ marginBottom: 10 }}
-                href={`/detalle/` + articulo.id}
+                onClick={() => navigate(`/detalle/${articulo.id}`)}
               >
                 Ver Detalle
-              </a>
+              </button>
             </div>
             <div className="col">
-              <a
+              <button
                 className="btn btn-info"
                 style={{ marginBottom: 10 }}
-                href={`/formulario/` + articulo.id}
+                onClick={() => navigate(`/formulario/${articulo.id}`)}
               >
                 Modificar
-              </a>
+              </button>
             </div>
             <div className="col">
               <a
                 className="btn btn-danger"
                 style={{ marginBottom: 10 }}
-                onClick={() => deleteArticulo(articulo.id)}
+                onClick={() => deleteArt(articulo.id)}
               >
                 Eliminar
               </a>

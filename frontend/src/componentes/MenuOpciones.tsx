@@ -16,11 +16,11 @@ function MenuOpciones() {
                 Grilla
               </a>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a className="nav-link" href="/app">
                 App
               </a>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>
