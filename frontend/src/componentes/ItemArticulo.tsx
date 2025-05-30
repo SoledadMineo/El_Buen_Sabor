@@ -31,6 +31,14 @@ function ItemArticulo(args: ArticuloParams) {
                 Detalle
               </button>
             </a>
+            <button type="button" className="btn btn-danger">
+              Eliminar
+            </button>
+            <a href={`detalle/${args.id}`}>
+              <button type="button" className="btn btn-primary">
+                Modificar
+              </button>
+            </a>
           </div>
         </div>
       </div>

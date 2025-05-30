@@ -90,6 +90,30 @@ export class ArticuloManufacturadoControlador {
     }
   }
 
+  static async obtenerXId(req: Request, res: Response) {
+    try {
+      const repo = AppDataSource.getRepository(Articulomanufacturado);
+
+      const { id } = req.params;
+
+      const articulos = await repo.findOne({
+        where: { id: Number(id) },
+        relations: [
+          'categoria',
+          'articulomanufacturadodetalles',
+          'articulomanufacturadodetalles.articuloInsumo',
+          'articulomanufacturadodetalles.articuloInsumo.unidadMedida',
+          'imagenmanufacturados'
+        ],
+      });
+
+      return res.status(200).json(articulos);
+    } catch (error) {
+      console.error('Error al obtener artículos:', error);
+      return res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+  }
+
   static async editar(req: Request, res: Response) {
     try {
       const { id } = req.params;

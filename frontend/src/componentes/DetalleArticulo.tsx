@@ -5,16 +5,18 @@ import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
 import { getArticuloManufacturadoXIdFecth } from "../servicios/FuncionesApi";
 
 function DetalleArticulo() {
-  const { idarticulo } = useParams();
+  const { idArticulo } = useParams();
   const [articulo, setArticulo] = useState<ArticuloManufacturado>();
   const getArticuloManufacturado = async () => {
     const articuloSelect: ArticuloManufacturado =
-      await getArticuloManufacturadoXIdFecth(Number(idarticulo));
+      await getArticuloManufacturadoXIdFecth(Number(idArticulo));
     setArticulo(articuloSelect);
   };
   useEffect(() => {
     getArticuloManufacturado();
   }, []);
+
+  console.log(articulo)
 
   return (
     <>
@@ -34,18 +36,18 @@ function DetalleArticulo() {
           <p className="card-text">{articulo?.descripcion}</p>
           <p className="align-izquierda">
             Ingredientes:<br></br>
-            {articulo?.ingredientes?.map((ing: Ingrediente) => (
+            {articulo?.articulomanufacturadodetalles?.map((ing: Ingrediente) => (
               <li key={ing.id}>
-                {ing.nombre} {ing.cantidad} {ing.unidadMedida}
+                {ing.articuloInsumo.denominacion} {ing.cantidad} {ing.articuloInsumo.unidadMedida.denominacion}
               </li>
             ))}
           </p>
-          <a href="#" className="btn btn-primary">
+          {/* <a href="#" className="btn btn-primary">
             Comprar
-          </a>
+          </a> */}
         </div>
         <div className="card-footer text-body-secondary">
-          <a href="/menu">
+          <a href="/grilla">
             <button type="button" className="btn btn-success">
               Volver
             </button>

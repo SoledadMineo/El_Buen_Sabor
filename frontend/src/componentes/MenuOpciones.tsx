@@ -12,6 +12,11 @@ function MenuOpciones() {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" aria-current="true" href="/grilla">
+                Grilla
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/app">
                 App
               </a>

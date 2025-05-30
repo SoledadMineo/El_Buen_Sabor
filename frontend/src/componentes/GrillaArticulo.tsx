@@ -8,7 +8,8 @@ function GrillaArticulo() {
 
   const getArticuloManufacturado = async () => {
     const datos: ArticuloManufacturado[] = await getArticulos();
-    setArticulos(datos);
+    console.log("datos", datos)
+    setArticulos(datos.data);
   };
 
   useEffect(() => {
@@ -48,6 +49,9 @@ function GrillaArticulo() {
             <b>Tiempo Estimado</b>
           </div>
           <div className="col">
+            <b>Ver Detalle</b>
+          </div>
+          <div className="col">
             <b>Modificar</b>
           </div>
           <div className="col">
@@ -64,6 +68,15 @@ function GrillaArticulo() {
             <div className="col">{articulo.tiempoEstimado}</div>
             <div className="col">
               <a
+                className="btn btn-primary"
+                style={{ marginBottom: 10 }}
+                href={`/detalle/` + articulo.id}
+              >
+                Ver Detalle
+              </a>
+            </div>
+            <div className="col">
+              <a
                 className="btn btn-info"
                 style={{ marginBottom: 10 }}
                 href={`/formulario/` + articulo.id}
@@ -75,7 +88,7 @@ function GrillaArticulo() {
               <a
                 className="btn btn-danger"
                 style={{ marginBottom: 10 }}
-                onClick={(e) => deleteArticulo(articulo.id)}
+                onClick={() => deleteArticulo(articulo.id)}
               >
                 Eliminar
               </a>
