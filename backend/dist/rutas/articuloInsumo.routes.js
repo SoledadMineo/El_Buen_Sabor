@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ArticuloInsumoControlador_1 = require("../controladores/ArticuloInsumoControlador");
+const upload_1 = require("../middleware/upload");
+const uploadInsumoDir = (0, upload_1.uploadTo)('insumos');
+const router = (0, express_1.Router)();
+router.post('/', uploadInsumoDir.single('imagen'), ArticuloInsumoControlador_1.ArticuloInsumoControlador.crear);
+router.get('/', ArticuloInsumoControlador_1.ArticuloInsumoControlador.obtenerTodos);
+router.put('/:id', uploadInsumoDir.single('imagen'), ArticuloInsumoControlador_1.ArticuloInsumoControlador.editar);
+exports.default = router;
