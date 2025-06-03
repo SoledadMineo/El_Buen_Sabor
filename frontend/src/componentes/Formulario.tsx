@@ -16,7 +16,7 @@ const Formulario = () => {
     precioVenta: '',
     precioCosto: '',
     tiempoEstimado: 0,
-    categoriaId: '',
+    categoriaId: 0,
     detalleArtManufacturado: []
   });
 
@@ -79,8 +79,9 @@ const Formulario = () => {
     }));
   };
 
-  const { id } = useParams();  
-  console.log("check", detalles, insumos, articulo)
+  const { idArticulo } = useParams();  
+  console.log("id", idArticulo)
+  // console.log("check", detalles, insumos, articulo)
 
   useEffect(() => {
     fetch('http://localhost:3000/api/categorias-manufacturados')
@@ -95,10 +96,11 @@ const Formulario = () => {
   }, []);
 
   useEffect(() => {
-  if (id) {
-    fetch(`http://localhost:3000/api/articulos-manufacturados/${id}`)
+  if (idArticulo) {
+    fetch(`http://localhost:3000/api/articulos-manufacturados/${idArticulo}`)
       .then(res => res.json())
       .then(data => {
+        console.log("data", data)
         setArticulo({
           id: data.id,
           denominacion: data.denominacion,
@@ -107,13 +109,15 @@ const Formulario = () => {
           precioCosto: data.precioCosto,
           tiempoEstimado: data.tiempoEstimado,
           categoriaId: data.categoriaId,
-          detalleArtManufacturado: data.detalleArtManufacturado
+          detalleArtManufacturado: data.articulomanufacturadodetalles
+          
         });
-        setDetalles(data.detalleArtManufacturado);
+        
+        setDetalles(data.articulomanufacturadodetalles);
       })
       .catch(err => console.error('Error al cargar artículo:', err));
   }
-}, [id]);
+}, [idArticulo]);
 
 
   useEffect(() => {
@@ -155,7 +159,11 @@ const Formulario = () => {
     }
   };
  
-  const nombreInsumo = id => insumos.find(i => i.id === Number(id))?.denominacion || '─';
+  const nombreInsumo = (id) => {
+    const insumoEncontrado = insumos.find(i => i.id === Number(id));
+    //console.log("insumo encontrado", insumoEncontrado)
+    return insumoEncontrado?.denominacion || insumoEncontrado?.articuloInsumo.denominacion || "--";
+  }
 
   return (
     <>
@@ -234,7 +242,7 @@ const Formulario = () => {
             <tbody>
               {detalles.map((d, idx) => (
                 <tr key={idx}>
-                  <td>{nombreInsumo(d.idArtInsumo)}</td>
+                  <td>{nombreInsumo(d.idArtInsumo || d.articuloInsumo.id)}</td>
                   <td>{d.cantidad}</td>
                   <td>
                     <button type="button" className="btn btn-outline-secondary btn-sm me-1"
