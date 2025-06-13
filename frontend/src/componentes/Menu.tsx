@@ -1,41 +1,67 @@
 import { useEffect, useState } from "react";
-import MenuOpciones from "./MenuOpciones";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
-import ItemArticulo from "./ItemArticulo";
-import { getArticulos } from "../servicios/FuncionesApi";
+import ArticuloInsumo from "../entidades/ArticuloInsumo";
+import ItemMenu from "./ItemMenu";
+import { getArticulosManufacturados } from "../servicios/FuncionesApi";
+import { getArticuloInsumos } from "../servicios/FuncionesApi";
+import { useNavigate } from "react-router-dom";
 
 function Menu() {
-  const [articulo, setArticulo] = useState<ArticuloManufacturado[]>([]);
+  const [articulos, setArticulos] = useState<ArticuloManufacturado[]>([]);
+  const [insumos, setInsumos] = useState<ArticuloInsumo[]>([]);
+
+  const navigate = useNavigate();
 
   const getArticuloManufacturado = async () => {
-    const response = await getArticulos();
-    console.log("Respuesta de getArticulos:", response);
-    setArticulo(response.data); // ✅ .data es el array que querés mapear
+    const response = await getArticulosManufacturados();
+    console.log("Respuesta de getArticulosManufacturados:", response);
+    setArticulos(response.data); // ✅ .data es el array que querés mapear
+  };
+
+  const getArticuloInsumo = async () => {
+    const response = await getArticuloInsumos(false);
+    console.log("Respuesta de getArticulosInsumos:", response);
+    setInsumos(response); // ✅ .data es el array que querés mapear
   };
 
   useEffect(() => {
     getArticuloManufacturado();
+    getArticuloInsumo()
   }, []);
-  console.log("Contenido de articulo:", articulo);
+
+  const confirmarPedido = () => {
+    navigate("/carrito");
+  }
+  console.log("Contenido de articulo:", articulos);
   return (
     <>
-      <MenuOpciones></MenuOpciones>
       <div className="row">
-        {articulo.map((articulo: ArticuloManufacturado) => (
-          <ItemArticulo
+        {articulos.map((articulo: ArticuloManufacturado) => (
+          <ItemMenu
             key={articulo.id}
-            id={articulo.id}
+            tipoArticulo="manufacturado"
+            id={articulo.id || 0}
             denominacion={articulo.denominacion}
-            descripcion={articulo.descripcion}
+            descripcion={articulo.descripcion || ""}
             precioVenta={articulo.precioVenta}
-            precioCosto={articulo.precioCosto}
-            tiempoEstimado={articulo.tiempoEstimado}
-            imagen={articulo.imagenes}
-            detalle={articulo.detalles}
-            categoria={articulo.categoria}
-          ></ItemArticulo>
+            imagenes={articulo.imagenmanufacturados || []}
+            categoria={articulo.categoriaId || { id: 0, denominacion: "" }}
+          ></ItemMenu>
+        ))}
+        {insumos.map((insumo: ArticuloInsumo) => (
+          <ItemMenu
+            key={insumo.id}
+            tipoArticulo="insumo"
+            id={insumo.id || 0}
+            denominacion={insumo.denominacion}            
+            precioVenta={insumo.precioVenta}
+            imagenes={insumo.imagenmanufacturados || []}
+            categoria={insumo.categoriaId || { id: 0, denominacion: "" }}
+          ></ItemMenu>
         ))}
       </div>
+
+      <button className="btn btn-primary mt-2" onClick={confirmarPedido}>Confirmar Pedido</button>
     </>
   );
 }

@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
-import MenuOpciones from "./MenuOpciones";
-import { deleteArticulo, getArticulos } from "../servicios/FuncionesApi";
+import { deleteArticuloManufacturado, getArticulosManufacturados } from "../servicios/FuncionesApi";
 import { useNavigate } from "react-router-dom";
 
 function GrillaArticulo() {
   const navigate = useNavigate();
   const [articulos, setArticulos] = useState<ArticuloManufacturado[]>([]);
   const getArticuloManufacturado = async () => {
-    const datos: ArticuloManufacturado[] = await getArticulos();
+    const datos: ArticuloManufacturado[] = await getArticulosManufacturados();
     console.log("datos", datos)
     setArticulos(datos.data);
   };
@@ -19,7 +18,7 @@ function GrillaArticulo() {
 
   const deleteArt = async (idArticulo: number) => {
   try {
-    await deleteArticulo(idArticulo);
+    await deleteArticuloManufacturado(idArticulo);
     setArticulos(articulos.filter((a) => a.id !== idArticulo)); // así no recargas la página
   } catch (error) {
     console.error("Error al eliminar el artículo", error);
@@ -28,7 +27,6 @@ function GrillaArticulo() {
 
   return (
     <>
-      <MenuOpciones></MenuOpciones>
       <div className="container text-center">
         <br />
         <button className="btn btn-primary" onClick={() => navigate(`/formulario/0`)}>

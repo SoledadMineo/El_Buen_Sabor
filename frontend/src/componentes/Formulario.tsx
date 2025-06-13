@@ -1,58 +1,51 @@
 import { useEffect, useState } from 'react';
-import MenuOpciones from "./MenuOpciones";
-import { createArticulo } from "../servicios/FuncionesApi";
+import { createArticuloManufacturado } from "../servicios/FuncionesApi";
 import { useParams } from 'react-router-dom';
+import ArticuloManufacturadoDetalle from '../entidades/ArticuloManufacturadoDetalle';
+import ArticuloManufacturado from '../entidades/ArticuloManufacturado';
+import ArticuloInsumo from '../entidades/ArticuloInsumo';
+import type CategoriaArticuloManufacturado from '../entidades/CategoriaArticuloManufacturado';
 
 const Formulario = () => {
 
   const [categorias, setCategorias] = useState([]);
-  const [insumos, setInsumos] = useState([]);
-  const [imagen, setImagen] = useState(null);
+  const [insumos, setInsumos] = useState<ArticuloInsumo[]>([]);
+  const [imagen, setImagen] = useState<File>();
 
-  const [articulo, setArticulo] = useState({
-    id:0,
-    denominacion: '',
-    descripcion: '',
-    precioVenta: '',
-    precioCosto: '',
-    tiempoEstimado: 0,
-    categoriaId: 0,
-    detalleArtManufacturado: []
-  });
+  const [articulo, setArticulo] = useState<ArticuloManufacturado>(new ArticuloManufacturado);
 
-  const [detalles, setDetalles] = useState([]);
+  const [detalles, setDetalles] = useState<ArticuloManufacturadoDetalle[]>([]);
   const [showDetalleForm, setShowDetalleForm] = useState(false);
-  const [nuevoDetalle, setNuevoDetalle] = useState({
-    idArtInsumo: '',
-    cantidad: ''
-  });
+  const [nuevoDetalle, setNuevoDetalle] = useState<ArticuloManufacturadoDetalle>({ id: 0, cantidad: 0, articuloInsumo: new ArticuloInsumo });
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     console.log("check", e.target.id, e.target.value)
     setArticulo({ ...articulo, [e.target.id]: e.target.value });
   };
 
-  const handleImagenChange = e => {
-    setImagen(e.target.files[0]);
+  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImagen(e.target.files[0]);
+    }
   };
 
-  const handleNuevoDetalleChange = e => {
+  const handleNuevoDetalleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setNuevoDetalle({ ...nuevoDetalle, [e.target.name]: Number(e.target.value) });
   };
 
   const confirmarDetalle = () => {
-    if (nuevoDetalle.idArtInsumo && nuevoDetalle.cantidad) {
+    if (nuevoDetalle.articuloInsumo?.id && nuevoDetalle.cantidad) {
       setDetalles([...detalles, nuevoDetalle]);
-      setNuevoDetalle({ idArtInsumo: '', cantidad: '' });
+      setNuevoDetalle({ id: 0, cantidad: 0, articuloInsumo: new ArticuloInsumo });
       setShowDetalleForm(false);
     }
   };
 
-  const eliminarDetalle = index => {
+  const eliminarDetalle = (index: number) => {
     setDetalles(detalles.filter((_, i) => i !== index));
   };
 
-  const editarDetalle = index => {
+  const editarDetalle = (index: number) => {
     setNuevoDetalle(detalles[index]);
     setDetalles(detalles.filter((_, i) => i !== index));
     setShowDetalleForm(true);
@@ -62,7 +55,7 @@ const Formulario = () => {
     let totalCosto = 0;
 
     detalles.forEach(det => {
-      const insumo = insumos.find(i => i.id === Number(det.idArtInsumo));
+      const insumo = insumos.find((i: ArticuloInsumo) => i.id === Number(det.articuloInsumo?.id));
       if (insumo && det.cantidad) {
         totalCosto += insumo.precioCompra * Number(det.cantidad);
       }
@@ -79,7 +72,7 @@ const Formulario = () => {
     }));
   };
 
-  const { idArticulo } = useParams();  
+  const { idArticulo } = useParams();
   console.log("id", idArticulo)
   // console.log("check", detalles, insumos, articulo)
 
@@ -96,28 +89,28 @@ const Formulario = () => {
   }, []);
 
   useEffect(() => {
-  if (idArticulo) {
-    fetch(`http://localhost:3000/api/articulos-manufacturados/${idArticulo}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("data", data)
-        setArticulo({
-          id: data.id,
-          denominacion: data.denominacion,
-          descripcion: data.descripcion,
-          precioVenta: data.precioVenta,
-          precioCosto: data.precioCosto,
-          tiempoEstimado: data.tiempoEstimado,
-          categoriaId: data.categoriaId,
-          detalleArtManufacturado: data.articulomanufacturadodetalles
-          
-        });
-        
-        setDetalles(data.articulomanufacturadodetalles);
-      })
-      .catch(err => console.error('Error al cargar artículo:', err));
-  }
-}, [idArticulo]);
+    if (idArticulo) {
+      fetch(`http://localhost:3000/api/articulos-manufacturados/${idArticulo}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("data", data)
+          setArticulo({
+            id: data.id,
+            denominacion: data.denominacion,
+            descripcion: data.descripcion,
+            precioVenta: data.precioVenta,
+            precioCosto: data.precioCosto,
+            tiempoEstimado: data.tiempoEstimado,
+            categoriaId: data.categoriaId,
+            articulomanufacturadodetalles: data.articulomanufacturadodetalles
+
+          });
+
+          setDetalles(data.articulomanufacturadodetalles);
+        })
+        .catch(err => console.error('Error al cargar artículo:', err));
+    }
+  }, [idArticulo]);
 
 
   useEffect(() => {
@@ -130,13 +123,13 @@ const Formulario = () => {
 
     formData.append('denominacion', articulo.denominacion);
     formData.append('descripcion', articulo.descripcion);
-    formData.append('precioVenta', articulo.precioVenta);
-    formData.append('precioCosto', articulo.precioCosto);
-    formData.append('tiempoEstimado', articulo.tiempoEstimado);
-    formData.append('categoriaId', articulo.categoriaId);
+    formData.append('precioVenta', String(articulo.precioVenta));
+    formData.append('precioCosto', String(articulo.precioCosto));
+    formData.append('tiempoEstimado', String(articulo.tiempoEstimado));
+    formData.append('categoriaId', String(articulo.categoriaId));
     formData.append('detalles', JSON.stringify(detalles));
 
-    if(imagen)formData.append('imagenes', imagen);
+    if (imagen) formData.append('imagenes', imagen);
 
     if (articulo.id && articulo.id !== 0) {
       // Editar
@@ -144,30 +137,29 @@ const Formulario = () => {
         method: 'PUT',
         body: formData
       })
-      .then(res => res.json())
-      .then(data => alert('Artículo editado correctamente'))
-      .catch(err => console.error('Error al editar artículo:', err));
+        .then(res => res.json())
+        .then(_ => alert('Artículo editado correctamente'))
+        .catch(err => console.error('Error al editar artículo:', err));
     } else {
-    // Crear
+      // Crear
       fetch(`http://localhost:3000/api/articulos-manufacturados`, {
         method: 'POST',
         body: formData
       })
-      .then(res => res.json())
-      .then(data => alert('Artículo creado correctamente'))
-      .catch(err => console.error('Error al crear artículo:', err));
+        .then(res => res.json())
+        .then(() => alert('Artículo creado correctamente'))
+        .catch(err => console.error('Error al crear artículo:', err));
     }
   };
- 
-  const nombreInsumo = (id) => {
+
+  const nombreInsumo = (id: number) => {
     const insumoEncontrado = insumos.find(i => i.id === Number(id));
     //console.log("insumo encontrado", insumoEncontrado)
-    return insumoEncontrado?.denominacion || insumoEncontrado?.articuloInsumo.denominacion || "--";
+    return insumoEncontrado?.denominacion || "--";
   }
 
   return (
     <>
-      <MenuOpciones></MenuOpciones>
       <form className="container mt-4">
         <div className="row mb-3">
           <div className="col">
@@ -199,9 +191,9 @@ const Formulario = () => {
         <div className="row mb-3">
           <div className="col">
             <label className="form-label"><b>Categoría</b></label>
-            <select className="form-select" id="categoriaId" value={articulo.categoriaId} onChange={handleChange}>
+            <select className="form-select" id="categoriaId" value={articulo.categoriaId?.id} onChange={handleChange}>
               <option value="">Seleccione una categoría</option>
-              {categorias.map(cat => (
+              {categorias.map((cat: CategoriaArticuloManufacturado) => (
                 <option key={cat.id} value={cat.id}>{cat.denominacion}</option>
               ))}
             </select>
@@ -240,9 +232,9 @@ const Formulario = () => {
               </tr>
             </thead>
             <tbody>
-              {detalles.map((d, idx) => (
+              {detalles.map((d: ArticuloManufacturadoDetalle, idx) => (
                 <tr key={idx}>
-                  <td>{nombreInsumo(d.idArtInsumo || d.articuloInsumo.id)}</td>
+                  <td>{nombreInsumo(d.articuloInsumo?.id || 0)}</td>
                   <td>{d.cantidad}</td>
                   <td>
                     <button type="button" className="btn btn-outline-secondary btn-sm me-1"
@@ -270,7 +262,7 @@ const Formulario = () => {
             <div className="col-md-6">
               <label className="form-label">Insumo</label>
               <select className="form-select" name="idArtInsumo"
-                value={nuevoDetalle.idArtInsumo} onChange={handleNuevoDetalleChange}>
+                value={nuevoDetalle.articuloInsumo?.id} onChange={handleNuevoDetalleChange}>
                 <option value="">Seleccione un insumo</option>
                 {insumos.map(i => (
                   <option key={i.id} value={i.id}>{i.denominacion}</option>
@@ -286,7 +278,7 @@ const Formulario = () => {
               <button type="button" className="btn btn-primary me-2 flex-grow-1"
                 onClick={confirmarDetalle}>Confirmar</button>
               <button type="button" className="btn btn-secondary flex-grow-1"
-                onClick={() => { setNuevoDetalle({ idArtInsumo: '', cantidad: '' }); setShowDetalleForm(false); }}>
+                onClick={() => { setNuevoDetalle({ id: 0, cantidad: 0, articuloInsumo: new ArticuloInsumo }); setShowDetalleForm(false); }}>
                 Cancelar
               </button>
             </div>
@@ -296,7 +288,7 @@ const Formulario = () => {
         <button type="button" className="btn btn-primary" onClick={guardarArticuloManufacturado}>
           Guardar Artículo
         </button>
-        </form>
+      </form>
     </>
   );
 };

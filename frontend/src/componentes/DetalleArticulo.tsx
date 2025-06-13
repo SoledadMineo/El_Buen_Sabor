@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import MenuOpciones from "./MenuOpciones";
 import ArticuloManufacturado from "../entidades/ArticuloManufacturado";
 import { getArticuloManufacturadoXIdFecth } from "../servicios/FuncionesApi";
 
@@ -20,7 +19,6 @@ function DetalleArticulo() {
 
   return (
     <>
-      <MenuOpciones></MenuOpciones>
       <div className="card text-center">
         <div className="card-header">{articulo?.rubro}</div>
         <div>
